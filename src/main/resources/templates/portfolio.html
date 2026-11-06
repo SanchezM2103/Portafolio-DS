@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Portfolio profesional construido con Spring Boot, Thymeleaf y una API REST.">
+    <meta name="theme-color" content="#0a0c10">
+    <title th:text="${profile != null ? profile.name + ' ' + profile.surname + ' — Portfolio' : 'Portfolio Backend'}">Portfolio Backend</title>
+    <link rel="stylesheet" th:href="@{/css/portfolio-v2.css}" href="/css/portfolio-v2.css">
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<header class="site-header">
+    <nav class="shell nav" aria-label="Navegación principal">
+        <a class="brand" href="#inicio" aria-label="Ir al inicio">
+            <span class="brand-mark">DS</span>
+            <span class="brand-copy">
+                <strong th:text="${profile != null ? profile.name + ' ' + profile.surname : 'Portfolio'}">Portfolio</strong>
+                <small>BACKEND · API REST</small>
+            </span>
+        </a>
+
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-menu">
+            <span></span><span></span><span></span><span class="sr-only">Abrir menú</span>
+        </button>
+
+        <div class="nav-menu" id="main-menu">
+            <a href="#proyectos">Proyectos</a>
+            <a href="#stack">Stack</a>
+            <a href="#trayectoria">Trayectoria</a>
+            <a href="#sobre-mi">Sobre mí</a>
+        </div>
+
+        <a class="api-link" href="/swagger-ui.html">
+            <span class="live-dot"></span> Explorar API <span aria-hidden="true">↗</span>
+        </a>
+    </nav>
+</header>
+
+<main id="contenido">
+    <section class="hero shell" id="inicio">
+        <div class="hero-copy">
+            <p class="eyebrow"><span>PORTFOLIO</span> / DESARROLLO BACKEND</p>
+            <h1>Construyo sistemas que funcionan <span class="accent">detrás de la interfaz.</span></h1>
+            <p class="hero-intro" th:if="${profile != null}">
+                Soy <strong th:text="${profile.name + ' ' + profile.surname}">Nombre Apellido</strong>,
+                desarrollador enfocado en APIs, arquitectura backend y productos digitales sólidos.
+            </p>
+            <p class="hero-intro" th:unless="${profile != null}">Portfolio de desarrollo backend alimentado íntegramente por una API REST.</p>
+
+            <div class="hero-actions">
+                <a class="button button-primary" href="#proyectos">Explorar proyectos <span aria-hidden="true">↓</span></a>
+                <a class="button button-ghost" href="/api/profile">Ver JSON <span aria-hidden="true">↗</span></a>
+            </div>
+
+            <dl class="profile-facts" th:if="${profile != null}">
+                <div><dt>Edad</dt><dd><span th:text="${profile.age}">0</span> años</dd></div>
+                <div>
+                    <dt>Disponibilidad</dt>
+                    <dd class="availability" th:classappend="${profile.workStatus == true ? ' is-available' : ''}">
+                        <span class="live-dot"></span><span th:text="${profile.workStatus == true ? 'Disponible' : 'No disponible'}">Disponible</span>
+                    </dd>
+                </div>
+                <div><dt>Especialidad</dt><dd>Backend</dd></div>
+            </dl>
+        </div>
+
+        <aside class="api-console" aria-label="Resumen de la API">
+            <div class="console-topbar">
+                <span class="console-dots"><i></i><i></i><i></i></span><span>portfolio-api</span><span>● live</span>
+            </div>
+            <div class="console-body">
+                <div class="console-request"><span class="method">GET</span><code>/api/profile</code><span class="status-code">200 OK</span></div>
+                <pre aria-label="Ejemplo de respuesta JSON"><code>{
+  <span class="json-key">"name"</span>: <span class="json-string" th:text="${profile != null ? '&quot;' + profile.name + '&quot;' : '&quot;Portfolio&quot;'}">"Portfolio"</span>,
+  <span class="json-key">"surname"</span>: <span class="json-string" th:text="${profile != null ? '&quot;' + profile.surname + '&quot;' : '&quot;Backend&quot;'}">"Backend"</span>,
+  <span class="json-key">"age"</span>: <span class="json-number" th:text="${profile != null ? profile.age : 0}">0</span>,
+  <span class="json-key">"workStatus"</span>: <span class="json-boolean" th:text="${profile != null ? profile.workStatus : false}">false</span>
+}</code></pre>
+                <div class="console-meta"><span><i></i> Spring Boot</span><span>application/json</span></div>
+            </div>
+        </aside>
+    </section>
+
+    <section class="metrics" aria-label="Resumen del portfolio">
+        <div class="shell metrics-grid">
+            <div><strong th:text="${#lists.size(projects)}">0</strong><span>Proyectos</span></div>
+            <div><strong th:text="${#lists.size(skills)}">0</strong><span>Tecnologías</span></div>
+            <div><strong th:text="${#lists.size(courses) + #lists.size(studies)}">0</strong><span>Formaciones</span></div>
+            <div><strong th:text="${#lists.size(languages)}">0</strong><span>Idiomas</span></div>
+        </div>
+    </section>
+
+    <section class="section shell" id="proyectos">
+        <div class="section-heading">
+            <div><p class="section-index">01 / TRABAJO SELECCIONADO</p><h2>Proyectos que hablan <span>por el código.</span></h2></div>
+            <a class="endpoint-link" href="/api/projects"><span>GET</span> /api/projects ↗</a>
+        </div>
+
+        <div class="project-grid" th:if="${!projects.isEmpty()}">
+            <article class="project-card reveal" th:each="project, stat : ${projects}">
+                <div class="project-media" th:classappend="${project.img == null or project.img.isBlank() ? ' no-image' : ''}">
+                    <img th:if="${project.img != null and !project.img.isBlank()}" th:src="${project.img}"
+                         th:alt="${'Vista previa de ' + project.titleProject}" loading="lazy">
+                    <span class="image-placeholder" th:if="${project.img == null or project.img.isBlank()}">API / PROJECT</span>
+                    <span class="project-count" th:text="${#numbers.formatInteger(stat.count, 2)}">01</span>
+                </div>
+                <div class="project-content">
+                    <div class="resource-id">PROJECT <span th:text="${'#' + project.id}">#1</span></div>
+                    <h3 th:text="${project.titleProject}">Proyecto</h3>
+                    <p th:if="${project.desc != null and !project.desc.isBlank()}" th:text="${project.desc}">Descripción</p>
+                    <div class="tag-list" th:if="${project.skills != null and !project.skills.isEmpty()}">
+                        <span th:each="skill : ${project.skills}" th:title="${skill.level}" th:text="${skill.name}">Java</span>
+                    </div>
+                    <div class="project-footer">
+                        <a th:if="${project.url != null and !project.url.isBlank()}" th:href="${project.url}" target="_blank" rel="noopener noreferrer">Ver proyecto <span aria-hidden="true">↗</span></a>
+                        <span th:unless="${project.url != null and !project.url.isBlank()}">Proyecto sin enlace público</span>
+                        <code th:text="${project.img != null and !project.img.isBlank() ? 'image: true' : 'image: false'}">image: false</code>
+                    </div>
+                </div>
+            </article>
+        </div>
+        <div class="empty-state" th:if="${projects.isEmpty()}">Todavía no hay proyectos publicados en la API.</div>
+    </section>
+
+    <section class="section section-dark" id="stack">
+        <div class="shell">
+            <div class="section-heading">
+                <div><p class="section-index">02 / CAPACIDADES</p><h2>Stack técnico, <span>nivel a nivel.</span></h2></div>
+                <a class="endpoint-link" href="/api/skills"><span>GET</span> /api/skills ↗</a>
+            </div>
+            <div class="skill-grid" th:if="${!skills.isEmpty()}">
+                <article class="skill-card reveal" th:each="skill : ${skills}">
+                    <div class="skill-card-top"><span class="skill-icon" th:text="${#strings.substring(skill.name, 0, 1)}">J</span><code th:text="${'#' + skill.id}">#1</code></div>
+                    <h3 th:text="${skill.name}">Tecnología</h3>
+                    <div class="level-row">
+                        <span th:text="${skill.level}">INTERMEDIO</span>
+                        <div class="level-meter" th:classappend="${' level-' + #strings.toLowerCase(skill.level.toString())}"><i></i><i></i><i></i></div>
+                    </div>
+                </article>
+            </div>
+            <div class="empty-state" th:if="${skills.isEmpty()}">Todavía no hay habilidades publicadas en la API.</div>
+        </div>
+    </section>
+
+    <section class="section shell" id="trayectoria">
+        <div class="section-heading"><div><p class="section-index">03 / APRENDIZAJE CONTINUO</p><h2>Una trayectoria que <span>sigue creciendo.</span></h2></div></div>
+        <div class="journey-grid">
+            <article class="journey-panel reveal">
+                <div class="panel-heading"><div><span>FORMACIÓN ACADÉMICA</span><h3>Estudios</h3></div><a href="/api/studies">/api/studies ↗</a></div>
+                <div class="timeline" th:if="${!studies.isEmpty()}">
+                    <div class="timeline-item" th:each="study : ${studies}">
+                        <span class="timeline-marker"></span>
+                        <div>
+                            <div class="timeline-meta"><span th:text="${study.startYear != null ? study.startYear : '—'}">2024</span><span>→</span><span th:text="${study.endYear != null ? study.endYear : 'Actualidad'}">Actualidad</span><code th:text="${'#' + study.id}">#1</code></div>
+                            <h4 th:text="${study.title}">Estudio</h4><p th:text="${study.university}">Centro educativo</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="panel-empty" th:if="${studies.isEmpty()}">Sin estudios publicados.</p>
+            </article>
+
+            <article class="journey-panel reveal">
+                <div class="panel-heading"><div><span>ESPECIALIZACIÓN</span><h3>Cursos</h3></div><a href="/api/courses">/api/courses ↗</a></div>
+                <div class="timeline" th:if="${!courses.isEmpty()}">
+                    <div class="timeline-item" th:each="course : ${courses}">
+                        <span class="timeline-marker"></span>
+                        <div>
+                            <div class="timeline-meta"><span th:text="${course.dateCompletion != null ? course.dateCompletion : 'En curso'}">2025-01</span><code th:text="${'#' + course.id}">#1</code></div>
+                            <h4 th:text="${course.name}">Curso</h4><p th:text="${course.organization}">Organización</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="panel-empty" th:if="${courses.isEmpty()}">Sin cursos publicados.</p>
+            </article>
+        </div>
+
+        <div class="languages-block reveal">
+            <div class="languages-intro"><span>COMUNICACIÓN</span><h3>Idiomas</h3><a href="/api/languages">GET /api/languages ↗</a></div>
+            <div class="language-list" th:if="${!languages.isEmpty()}">
+                <div class="language-item" th:each="language : ${languages}">
+                    <div><strong th:text="${language.language}">Español</strong><code th:text="${'#' + language.id}">#1</code></div>
+                    <span th:text="${language.languageLevel}">ALTO</span>
+                </div>
+            </div>
+            <p class="panel-empty" th:if="${languages.isEmpty()}">Sin idiomas publicados.</p>
+        </div>
+    </section>
+
+    <section class="section section-dark" id="sobre-mi">
+        <div class="shell">
+            <div class="section-heading">
+                <div><p class="section-index">04 / MÁS ALLÁ DEL CÓDIGO</p><h2>Información que completa <span>el perfil.</span></h2></div>
+                <a class="endpoint-link" href="/api/extra-info"><span>GET</span> /api/extra-info ↗</a>
+            </div>
+            <div class="info-list" th:if="${!extraInfo.isEmpty()}">
+                <article class="info-card reveal" th:each="info, stat : ${extraInfo}">
+                    <div class="info-number" th:text="${#numbers.formatInteger(stat.count, 2)}">01</div>
+                    <div>
+                        <div class="info-meta"><span th:text="${info.year != null ? info.year : 'Sin fecha'}">2025</span><code th:text="${'#' + info.id}">#1</code></div>
+                        <h3 th:text="${info.title}">Información</h3>
+                        <p th:if="${info.desc != null and !info.desc.isBlank()}" th:text="${info.desc}">Descripción</p>
+                    </div>
+                </article>
+            </div>
+            <div class="empty-state" th:if="${extraInfo.isEmpty()}">Todavía no hay información adicional publicada.</div>
+        </div>
+    </section>
+
+    <section class="api-cta shell">
+        <div><p class="section-index">05 / BAJO EL CAPÓ</p><h2>Este portfolio también es <span>una API viva.</span></h2><p>Todos los datos visibles se renderizan con Thymeleaf desde los servicios de la API.</p></div>
+        <div class="endpoint-grid">
+            <a href="/api/profile"><span>GET</span><code>/api/profile</code><b>↗</b></a>
+            <a href="/api/projects"><span>GET</span><code>/api/projects</code><b>↗</b></a>
+            <a href="/api/skills"><span>GET</span><code>/api/skills</code><b>↗</b></a>
+            <a href="/api/studies"><span>GET</span><code>/api/studies</code><b>↗</b></a>
+            <a href="/api/courses"><span>GET</span><code>/api/courses</code><b>↗</b></a>
+            <a href="/api/languages"><span>GET</span><code>/api/languages</code><b>↗</b></a>
+            <a href="/api/extra-info"><span>GET</span><code>/api/extra-info</code><b>↗</b></a>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="shell footer-grid">
+        <div>
+            <a class="brand" href="#inicio"><span class="brand-mark">DS</span><span class="brand-copy"><strong th:text="${profile != null ? profile.name + ' ' + profile.surname : 'Portfolio'}">Portfolio</strong><small>BACKEND DEVELOPER</small></span></a>
+            <p>Datos reales. Código limpio. Una interfaz pensada para enseñar ambos.</p>
+        </div>
+        <div class="footer-links"><a href="#proyectos">Proyectos</a><a href="#stack">Stack</a><a href="#trayectoria">Trayectoria</a><a href="/swagger-ui.html">Swagger UI ↗</a></div>
+        <div class="footer-meta"><span>Spring Boot · Thymeleaf · PostgreSQL</span><span>© <span th:text="${currentYear}">2026</span> · Todos los derechos reservados</span></div>
+    </div>
+</footer>
+
+<script th:src="@{/js/portfolio-v2.js}" src="/js/portfolio-v2.js" defer></script>
+</body>
+</html>
